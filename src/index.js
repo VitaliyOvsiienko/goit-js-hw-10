@@ -13,12 +13,12 @@ countryInput.addEventListener('input', debounce(onCountryInput, DEBOUNCE_DELAY))
 
 function onCountryInput(event) {
   event.preventDefault();
-  const name = countryInput.value.trim()
-  if (name === '') {
+  const countryName = countryInput.value.trim()
+  if ( countryName === '') {
     return (countryList.innerHTML = ''), (countryInfo.innerHTML = '')
   }
 
-  fetchCountries(name)
+  fetchCountries(countryName)
     .then(countries => {
       countryList.innerHTML = ''
       countryInfo.innerHTML = ''
@@ -26,12 +26,13 @@ function onCountryInput(event) {
         countryList.insertAdjacentHTML('beforeend', renderCountryList(countries))
         countryInfo.insertAdjacentHTML('beforeend', renderCountryInfo(countries))
       } else if (countries.length >= 10) {
-        alertTooManyMatches()
+        Notiflix.Notify.info('Too many matches found. Please enter a more specific name.')
+
       } else {
         countryList.insertAdjacentHTML('beforeend', renderCountryList(countries))
       }
     })
-    .catch(alertWrongName)
+    .catch(isNotCountry)
 }
 
 function renderCountryList(countries) {
@@ -39,7 +40,7 @@ function renderCountryList(countries) {
     .map(({ name, flags }) => {
       return `
           <li class="country-list__item">
-              <img class="country-list__flag" src="${flags.svg}" alt="Flag of ${name.official}" width = 50px height = 30px>
+              <img class="country-list__flag" src="${flags.svg}" alt="Flag of ${name.official}" width = 70px height = 50px>
               <h2 class="country-list__name">${name.official}</h2>
           </li>
           `
@@ -63,10 +64,6 @@ function renderCountryInfo(countries) {
   return markup
 }
 
-function alertWrongName() {
+function isNotCountry() {
   Notiflix.Notify.failure('Oops, there is no country with that name')
-}
-
-function alertTooManyMatches() {
-  Notiflix.Notify.info('Too many matches found. Please enter a more specific name.')
 }
